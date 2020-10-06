@@ -62,7 +62,14 @@ app.route('/api/stock-prices')
     
     /* Like Stock */
     let likeStock = (stockName, nextStep) => {
-      
+      Stock.findOne({name: stockName}, (error, stockDocument) => {
+        if(!error && stockDocument && stockDocument['ips'] && stockDocument['ips'].includes(req.ip)){
+            return res.send('1 Like Per User IP Allowed')
+        }else{
+            let documentUpdate = {$inc: {likes: 1}, $push: {ips: req.ip}}
+            nextStep(stockName, documentUpdate, getPrice)
+        }
+    })
     }
     
     /* Get Price */
@@ -98,7 +105,11 @@ app.route('/api/stock-prices')
       let stockName = req.query.stock
       
       let documentUpdate = {}
-      findOrUpdateStock(stockName, documentUpdate, getPrice)
+      if(req.query.like && req.query.like === 'true'){
+          likeStock(stockName, findOrUpdateStock)
+      }else{
+          findOrUpdateStock(stockName, documentUpdate, getPrice)
+      }
       
     } else if (Array.isArray(req.query.stock)){
 			twoStocks = true

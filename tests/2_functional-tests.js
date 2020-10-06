@@ -30,11 +30,24 @@ suite('Functional Tests', function() {
       });
       
       test('1 stock with like', function(done) {
-        
+          chai.request(server)
+        .get('/api/stock-prices')
+        .query({stock: 'msft', like: true})
+        .end(function(err, res){
+          assert.equal(res.body['stockData']['stock'], 'aapl')
+          assert.equal(res.body['stockData']['likes'], 1)
+          done();
+        });
       });
-      
+
       test('1 stock with like again (ensure likes arent double counted)', function(done) {
-        
+        chai.request(server)
+        .get('/api/stock-prices')
+        .query({stock: 'msft', like: true})
+        .end(function(err, res){
+          assert.equal(res.body, '1 Like Per User IP Allowed')
+          done()
+        });
       });
       
       test('2 stocks', function(done) {
