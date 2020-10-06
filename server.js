@@ -27,6 +27,9 @@ app.use(helmet.contentSecurityPolicy({
   }
 }))
 
+//allows us to get true IP addresses for users liking stocks
+app.enable('trust proxy')
+
 //Index page (static HTML)
 app.route('/')
   .get(function (req, res) {
