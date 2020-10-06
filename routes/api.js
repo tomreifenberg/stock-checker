@@ -11,7 +11,7 @@
 var expect = require('chai').expect;
 let mongodb = require('mongodb')
 let mongoose = require('mongoose')
-
+let XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
 module.exports = function (app) {
   
 /* pulled connection key from mongodb cluster, added process.env.PW to connect to private password, and added name of mongodb element stock_price_checker*/  
@@ -67,12 +67,22 @@ app.route('/api/stock-prices')
     
     /* Get Price */
     let getPrice = (stockDocument, nextStep) => {
-      nextStep(stockDocument, outputResponse)
+      let xhr = new XMLHttpRequest()
+      let requestUrl = 'https://stock-price-checker-proxy--freecodecamp.repl.co/v1/stock/' + stockDocument['name'] + '/quote'
+      xhr.open('GET', requestUrl, true)
+      xhr.onload = () => {
+          let apiResponse = JSON.parse(xhr.responseText)
+          stockDocument['price'] = apiResponse['latestPrice'].toFixed(2)
+          nextStep(stockDocument, outputResponse)
+  }
+  xhr.send()
     }
     
     /* Build Response for 1 Stock */
     let processOneStock = (stockDocument, nextStep) => {
        responseObject['stockData']['stock'] = stockDocument['name']
+        responseObject['stockData']['price'] = stockDocument['price']
+        responseObject['stockData']['likes'] = stockDocument['likes']
         nextStep()
     }
     
