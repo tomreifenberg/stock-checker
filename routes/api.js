@@ -53,6 +53,8 @@ app.route('/api/stock-prices')
                 }else if(!error && stockDocument){
                     if(twoStocks === false){
                       return nextStep(stockDocument, processOneStock)
+                    }else{
+                      return nextStep(stockDocument, processTwoStocks)
                     }
                 }
             }
@@ -96,7 +98,19 @@ app.route('/api/stock-prices')
     let stocks = []        
     /* Build Response for 2 Stocks */
     let processTwoStocks = (stockDocument, nextStep) => {
-      
+      let newStock = {}
+      newStock['stock'] = stockDocument['name']
+      newStock['price'] = stockDocument['price']
+      newStock['likes'] = stockDocument['likes']
+      stocks.push(newStock)
+      if(stocks.length === 2){
+        stocks[0]['rel_likes'] = stocks[0]['likes'] - stocks[1]['likes']
+        stocks[1]['rel_likes'] = stocks[1]['likes'] - stocks[0]['likes']
+        responseObject['stockData'] = stocks
+        nextStep()
+      }else{
+        return
+      }
     }
 
 		/* Process Input*/  
@@ -113,9 +127,23 @@ app.route('/api/stock-prices')
       
     } else if (Array.isArray(req.query.stock)){
 			twoStocks = true
-      /* Stock 1 */
+        /* Stock 1 */
+        let stockName = req.query.stock[0]
+        if(req.query.like && req.query.like === 'true'){
+            likeStock(stockName, findOrUpdateStock)
+        }else{
+            let documentUpdate = {}
+            findOrUpdateStock(stockName, documentUpdate, getPrice)
+        }
 
-      /* Stock 2 */
+        /* Stock 2 */
+        stockName = req.query.stock[1]
+        if(req.query.like && req.query.like === 'true'){
+            likeStock(stockName, findOrUpdateStock)
+        }else{
+            let documentUpdate = {}
+            findOrUpdateStock(stockName, documentUpdate, getPrice)
+        }
 
     }
 });

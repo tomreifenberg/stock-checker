@@ -51,13 +51,57 @@ suite('Functional Tests', function() {
       });
       
       test('2 stocks', function(done) {
-        
+        chai.request(server)
+        .get('/api/stock-prices')
+        .query({stock: ['qcln', 'tsla']})
+        .end(function(err, res){
+          let stockData = res.body['stockData']
+          assert.isArray(stockData)
+          /* Stocks can come in either order */
+          if(stockData[0]['stock'] === 'qcln'){
+            assert.equal(stockData[0]['stock'], 'qcln')
+            assert.equal(stockData[0]['likes'], 1)
+            assert.equal(stockData[0]['rel_likes'], 1)
+            assert.equal(stockData[1]['stock'], 'tsla')
+            assert.equal(stockData[1]['likes'], 0)
+            assert.equal(stockData[1]['rel_likes'], -1)
+          }else{
+            assert.equal(stockData[1]['stock'], 'qcln')
+            assert.equal(stockData[1]['likes'], 1)
+            assert.equal(stockData[1]['rel_likes'], 1)
+            assert.equal(stockData[0]['stock'], 'tsla')
+            assert.equal(stockData[0]['likes'], 0)
+            assert.equal(stockData[0]['rel_likes'], -1)
+          }
+          done()
+        });
       });
-      
+
       test('2 stocks with like', function(done) {
-        
+        chai.request(server)
+        .get('/api/stock-prices')
+        .query({stock: ['msft', 'tsla'], like: true})
+        .end(function(err, res){
+          let stockData = res.body.stockData
+          if(stockData[0]['stock'] === 'msft'){
+            assert.equal(stockData[0]['stock'], 'msft')
+            assert.equal(stockData[0]['likes'], 1)
+            assert.equal(stockData[0]['rel_likes'], 0)
+            assert.equal(stockData[1]['stock'], 'tsla')
+            assert.equal(stockData[1]['likes'], 1)
+            assert.equal(stockData[1]['rel_likes'], 0)
+          }else{
+            assert.equal(stockData[1]['stock'], 'msft')
+            assert.equal(stockData[1]['likes'], 1)
+            assert.equal(stockData[1]['rel_likes'], 0)
+            assert.equal(stockData[0]['stock'], 'tsla')
+            assert.equal(stockData[0]['likes'], 1)
+            assert.equal(stockData[0]['rel_likes'], 0)
+          }
+          done()
+        });
       });
-      
+
     });
 
 });
