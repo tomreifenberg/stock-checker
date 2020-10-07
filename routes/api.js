@@ -66,7 +66,7 @@ app.route('/api/stock-prices')
     let likeStock = (stockName, nextStep) => {
       Stock.findOne({name: stockName}, (error, stockDocument) => {
         if(!error && stockDocument && stockDocument['ips'] && stockDocument['ips'].includes(req.ip)){
-            return res.send('1 Like Per User IP Allowed')
+            return res.json('1 Like Per User IP Allowed')
         }else{
             let documentUpdate = {$inc: {likes: 1}, $push: {ips: req.ip}}
             nextStep(stockName, documentUpdate, getPrice)

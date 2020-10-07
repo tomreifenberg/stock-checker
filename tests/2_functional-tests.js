@@ -34,7 +34,7 @@ suite('Functional Tests', function() {
         .get('/api/stock-prices')
         .query({stock: 'msft', like: true})
         .end(function(err, res){
-          assert.equal(res.body['stockData']['stock'], 'aapl')
+          assert.equal(res.body['stockData']['stock'], 'msft')
           assert.equal(res.body['stockData']['likes'], 1)
           done();
         });
